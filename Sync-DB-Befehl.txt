@@ -1,0 +1,6 @@
+python3 manage.py makemigrations Kläranlage
+python3 manage.py migrate
+
+
+django-admin syncdb --settings=settings --pythonpath=`pwd`
+
