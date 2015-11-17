@@ -1,7 +1,9 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
 from django.db import models
 
-# Create your models here.
-# Basismodell
+# Basismodell abstract!
 class BasisModell(models.Model):
     created = models.DateTimeField(auto_now_add = True)
     touched = models.DateTimeField(auto_now = True)
@@ -9,5 +11,22 @@ class BasisModell(models.Model):
     class Meta:
         abstract = True
 
+# Klasse für die Datenbankabbildung der Kläranlage
 class Klaeranlage(BasisModell):
-    name = models.CharField()
+    name = models.CharField(max_length = 100)
+    ort = models.CharField(max_length = 50)
+
+
+
+
+
+
+
+    # Funktion zum exportieren im CSV-Format
+    def CSV_export(self, titelzeile = False):
+        pass
+
+    #Funtion zum importieren im CSV-Format
+    def CSV_import(self, titelzeile = False):
+        pass
+
