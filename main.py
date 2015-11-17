@@ -22,9 +22,18 @@ import tkinter.ttk as ttk
 # GUI erst mal hier, auslagern später
 # Hauptfenster
 root_Fenster = tk.Frame(height = 786, width = 1024)
+root_Fenster.master.title("PhosPy")
+
+# Root Fenster auf Größe festlegen und zeichnen lassen
+root_Fenster.grid_propagate(0)
+root_Fenster.grid()
+
 
 hauptmenue = ttk.Menubutton(root_Fenster,text = "Test" )
 
+
+
+# GUI Starten
 root_Fenster.mainloop()
 
 
