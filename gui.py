@@ -7,9 +7,12 @@ import django
 django.setup()
 import sys
 
-#Grafik Toolkit importieren
-import Tkinter as tk
+# Grafik Toolkit imporotieren
+import tkinter as tk
+import tkinter.ttk as ttk
+import tkinter.font as font
 
 # Django-Datenbank importieren
 import db.models as db
 
+# Hauptfenster
