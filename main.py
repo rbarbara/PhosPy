@@ -24,7 +24,7 @@ def machNix():
 
 # Funktion für das Styles Menü
 def checkStyle():
-    # Auf den gewaehlten Sytle per gloabaler Variable zugreifen
+    # Auf den gewaehlten Sytle per globaler Variable zugreifen
     global gewaehlter_Style
     print(gewaehlter_Style.get())
     style = ttk.Style()
@@ -48,11 +48,6 @@ root_Tk.title("PhosPy")
 
 # Größe unveränderbar
 root_Tk.resizable(width = None, height = None)
-
-
-# Root Fenster auf Größe festlegen und zeichnen lassen, ohne tut die Größenangabe nicht
-#root_Fenster.grid_propagate(0)
-#root_Fenster.grid()
 
 
 # Hauptmenü-Zeile ==============================================================
@@ -92,13 +87,14 @@ menue_Export = tk.Menu(master = hauptmenue_Zeile, tearoff = 0)
 # drittes Unteremnü zu Hauptmenü hinzufügen
 hauptmenue_Zeile.add_cascade(label = "Export", menu = menue_Export)
 
-#Bausteine in erstes Untermenü hinzufügen
+#Bausteine in drittes Untermenü hinzufügen
 menue_Export.add_command(label = "Export in CSV")
 
 
 # Viertes Untermenü ============================================================
 menue_Styles = tk.Menu(master = hauptmenue_Zeile, tearoff = 0)
 
+# Auslesen welche Styles auf dem Menü verfügbar sind
 styles = ttk.Style()
 styles_Liste = []
 styles_Liste = styles.theme_names()
@@ -109,10 +105,30 @@ gewaehlter_Style.set("default")
 for jeden in styles_Liste:
     menue_Styles.add_radiobutton(label = jeden, value = jeden, variable = gewaehlter_Style, command = checkStyle)
 
-# viertes Unteremnü zu Hauptmenü hinzufügen
+# viertes Untermenü zu Hauptmenü hinzufügen
 hauptmenue_Zeile.add_cascade(label = "Styles", menu = menue_Styles)
 
+# Frame in der Mitte
+haupt_Frame = ttk.Frame(master = root_Tk)
+haupt_Frame.grid()
 
+irgendein_Frame = ttk.Frame(master = haupt_Frame)
+irgendein_Frame.grid(row = 0)
+
+irgendein_Label = ttk.Label(master = irgendein_Frame, text = "Bla bla", borderwidth = 1)
+irgendein_Label.grid()
+
+
+
+
+# Statuszeile ==================================================================
+inhalt_Statuszeile = tk.StringVar()
+inhalt_Statuszeile.set("Hallo, hier sollte ich sein!")
+statuszeile = ttk.Label(master = haupt_Frame, textvariable = inhalt_Statuszeile,
+                        borderwidth = 1, relief = tk.SUNKEN, justify = tk.LEFT,
+                        anchor = tk.S)
+
+statuszeile.grid(sticky = (tk.W, tk.E, tk.S), row = 1)
 
 
 
