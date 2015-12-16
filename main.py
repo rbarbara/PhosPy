@@ -46,10 +46,77 @@ root_Fenster.configure(width = 1024, height = 786)
 # Titel Hauptfenster
 root_Fenster.title("PhosPy")
 
-# Größe unveränderbar, Min und Max-Größe festlegen auf gleichge Größe
+# Größe unveränderbar, Min und Max-Größe festlegen auf gleiche Größe
 root_Fenster.minsize(width = 1024, height = 786)
 root_Fenster.maxsize(width = 1024, height = 786)
 
+# Hauptmenü-Zeile ==============================================================
+# Oberste Zeile ist die Hauptmenü-Zeile
+hauptmenue_Zeile = tk.Menu(root_Fenster, tearoff = False)
+
+# Dem root-Fenster die Menü-Zeile bekannt machen
+root_Fenster.configure(menu = hauptmenue_Zeile)
+
+# Erstes Untermenü =============================================================
+menue_Datei = tk.Menu(master = hauptmenue_Zeile, tearoff = 0)
+
+# erstes Untermenü zu Hauptmenü hinzufügen
+hauptmenue_Zeile.add_cascade(label = "Datei", menu = menue_Datei)
+
+# Bausteine in erstes Untermenü hinzufügen
+menue_Datei.add_command(label = "Neues irgendwas", command = machNix)
+menue_Datei.add_command(label = "Speichern", command = machNix)
+menue_Datei.add_command(label = "Öffnen", command = machNix)
+menue_Datei.add_separator()
+menue_Datei.add_command(label = "Schließen", command = root_Fenster.quit)
+
+
+# Zweites Untermenü ============================================================
+menue_Import = tk.Menu(master = hauptmenue_Zeile, tearoff = 0)
+
+# zweites Unteremnü zu Hauptmenü hinzufügen
+hauptmenue_Zeile.add_cascade(label = "Import", menu = menue_Import)
+
+#Bausteine in erstes Untermenü hinzufügen
+menue_Import.add_command(label = "Import von CSV")
+
+
+# Drittes Untermenü ============================================================
+menue_Export = tk.Menu(master = hauptmenue_Zeile, tearoff = 0)
+
+# drittes Unteremnü zu Hauptmenü hinzufügen
+hauptmenue_Zeile.add_cascade(label = "Export", menu = menue_Export)
+
+#Bausteine in drittes Untermenü hinzufügen
+menue_Export.add_command(label = "Export in CSV")
+
+
+# Viertes Untermenü ============================================================
+menue_Styles = tk.Menu(master = hauptmenue_Zeile, tearoff = 0)
+
+# Auslesen welche Styles auf dem Menü verfügbar sind
+styles = ttk.Style()
+styles_Liste = []
+styles_Liste = styles.theme_names()
+gewaehlter_Style = tk.StringVar()
+gewaehlter_Style.set("default")
+
+#Bausteine im vierten Untermenü hinzufügen
+for jeden in styles_Liste:
+    menue_Styles.add_radiobutton(label = jeden, value = jeden, variable = gewaehlter_Style, command = checkStyle)
+
+# viertes Untermenü zu Hauptmenü hinzufügen
+hauptmenue_Zeile.add_cascade(label = "Styles", menu = menue_Styles)
+
+
+
+
+
+
+
+# ==============================================================================
+# GUI Starten
+# ==============================================================================
 root_Fenster.mainloop()
 
 
@@ -117,7 +184,7 @@ styles_Liste = styles.theme_names()
 gewaehlter_Style = tk.StringVar()
 gewaehlter_Style.set("default")
 
-#Bausteine in erstes Untermenü hinzufügen
+#Bausteine im vierten Untermenü hinzufügen
 for jeden in styles_Liste:
     menue_Styles.add_radiobutton(label = jeden, value = jeden, variable = gewaehlter_Style, command = checkStyle)
 
