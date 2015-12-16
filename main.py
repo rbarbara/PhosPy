@@ -39,8 +39,23 @@ def checkStyle():
 
 # Tk-Hauptfenster ==============================================================
 # Das Hauptfenster hat keinen Master!
-# Breite 1024 Pixel und  Hhöhe 786 Pixel
-root_Tk = tk.Tk()
+# Breite 1024 Pixel und  Höhe 786 Pixel
+root_Fenster = tk.Tk()
+root_Fenster.configure(width = 1024, height = 786)
+
+# Titel Hauptfenster
+root_Fenster.title("PhosPy")
+
+# Größe unveränderbar
+root_Fenster.resizable(width = None, height = None)
+
+root_Fenster.mainloop()
+
+
+
+
+"""
+
 root_Tk.configure(height = 786, width = 1024)
 
 # Titel Hauptfenster
@@ -141,3 +156,7 @@ statuszeile.grid(sticky = (tk.W, tk.E, tk.S), row = 1)
 
 root_Tk.mainloop()
 
+
+
+
+"""
