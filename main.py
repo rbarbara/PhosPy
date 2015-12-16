@@ -132,21 +132,21 @@ Notebook.add(Seite_4 )
 Notebook.tab(3, text = "DB-Werte")
 
 
-#Notebook.pack()
-Notebook.grid(sticky = (tk.W, tk.E, tk.N), row = 0)
+Notebook.pack(anchor = "n", expand = True, fill = "both", side = "top")
+#Notebook.grid(sticky = (tk.W, tk.E, tk.N), row = 0)
 
 
 # Statuszeile ==================================================================
 inhalt_Statuszeile = tk.StringVar()
-inhalt_Statuszeile.set("Hallo, hier sollte ich sein!")
+inhalt_Statuszeile.set("Hallo, hier sollte ich sein! Ich bin die Statuszeile!")
 statuszeile = ttk.Label(master = root_Fenster, textvariable = inhalt_Statuszeile,
                         borderwidth = 1, relief = tk.SUNKEN, justify = tk.LEFT,
                         anchor = tk.S)
 
 
 
-#statuszeile.pack()
-statuszeile.grid(sticky = (tk.W, tk.E, tk.S), row = 1)
+statuszeile.pack(anchor = "s", expand = False, fill = "x", side = "bottom")
+#statuszeile.grid(sticky = (tk.W, tk.E, tk.S), row = 1)
 
 
 
