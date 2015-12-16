@@ -46,8 +46,9 @@ root_Fenster.configure(width = 1024, height = 786)
 # Titel Hauptfenster
 root_Fenster.title("PhosPy")
 
-# Größe unveränderbar
-root_Fenster.resizable(width = None, height = None)
+# Größe unveränderbar, Min und Max-Größe festlegen auf gleichge Größe
+root_Fenster.minsize(width = 1024, height = 786)
+root_Fenster.maxsize(width = 1024, height = 786)
 
 root_Fenster.mainloop()
 
