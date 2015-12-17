@@ -131,7 +131,11 @@ Seite_4 = ttk.Frame(Notebook)
 Notebook.add(Seite_4 )
 Notebook.tab(3, text = "DB-Werte")
 
+Seite_5 = ttk.Frame(Notebook)
+Notebook.add(Seite_5 )
+Notebook.tab(4, text = "Erweitert")
 
+# Notebook nach oben packen und nach links und rechts ausdehnen
 Notebook.pack(anchor = "n", expand = True, fill = "both", side = "top")
 #Notebook.grid(sticky = (tk.W, tk.E, tk.N), row = 0)
 
@@ -143,19 +147,12 @@ statuszeile = ttk.Label(master = root_Fenster, textvariable = inhalt_Statuszeile
                         borderwidth = 1, relief = tk.SUNKEN, justify = tk.LEFT,
                         anchor = tk.S)
 
-
-
+# Statuszeile nach unten packen udn links und rechts ausdehnen
 statuszeile.pack(anchor = "s", expand = False, fill = "x", side = "bottom")
 #statuszeile.grid(sticky = (tk.W, tk.E, tk.S), row = 1)
 
 
 
-
-
-"""
-haupt_Frame = ttk.Frame(master = root_Fenster)
-haupt_Frame.pack()
-"""
 
 
 
@@ -166,33 +163,12 @@ haupt_Frame.pack()
 root_Fenster.mainloop()
 
 
-
-
 """
-
-
-
-# Statuszeile ==================================================================
-inhalt_Statuszeile = tk.StringVar()
-inhalt_Statuszeile.set("Hallo, hier sollte ich sein!")
-statuszeile = ttk.Label(master = haupt_Frame, textvariable = inhalt_Statuszeile,
-                        borderwidth = 1, relief = tk.SUNKEN, justify = tk.LEFT,
-                        anchor = tk.S)
-
-statuszeile.grid(sticky = (tk.W, tk.E, tk.S), row = 1)
-
-
-
-
-
 
 # ==============================================================================
 # GUI Starten
 # ==============================================================================
 
 root_Tk.mainloop()
-
-
-
 
 """
