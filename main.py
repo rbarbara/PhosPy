@@ -108,6 +108,11 @@ for jeden in styles_Liste:
 # viertes Untermenü zu Hauptmenü hinzufügen
 hauptmenue_Zeile.add_cascade(label = "Styles", menu = menue_Styles)
 
+
+# Werkzeugleiste ===============================================================
+werkzeugleiste = ttk.Frame(master = root_Fenster, borderwidth = 1)
+werkzeugleiste.pack(anchor = "n", expand = False, fill = "x", side = "top")
+
 # Notebook-Ansicht =============================================================
 Notebook = ttk.Notebook(root_Fenster)
 
