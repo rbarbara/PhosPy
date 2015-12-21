@@ -119,25 +119,57 @@ Notebook = ttk.Notebook(root_Fenster)
 # Durchzappen per Tasten erlauben
 Notebook.enable_traversal()
 
-
-Seite_1 = ttk.Frame(Notebook)
-Notebook.add(Seite_1)
+# 1. Notebook-Blatt: Übersicht mit Kläranlagen-Schema
+KA_uebersicht = ttk.Frame(Notebook)
+Notebook.add(KA_uebersicht)
 Notebook.tab(0, text = "Übersicht", sticky = tk.W)
 
-Seite_2 = ttk.Frame(Notebook)
-Notebook.add(Seite_2 )
+#ganze_Anlage = ttk.LabelFrame(KA_uebersicht, text = "Komplette Anlage")
+#ganze_Anlage.pack()
+
+
+
+
+
+# 2. Notebook-Blatt: Liste der Daten
+liste = ttk.Frame(Notebook)
+Notebook.add(liste)
 Notebook.tab(1, text = "Liste")
 
-Seite_3 = ttk.Frame(Notebook)
-Notebook.add(Seite_3 )
+# 3. Notebook-Blatt: Phosphat-Bilanz
+PO4_Bilanz = ttk.Frame(Notebook)
+Notebook.add(PO4_Bilanz )
 Notebook.tab(2, text = "Phosphatbilanz")
 
-Seite_4 = ttk.Frame(Notebook)
-Notebook.add(Seite_4 )
+# 4. Notebook-Blatt: DB-Werte
+DB_Werte = ttk.Frame(Notebook)
+Notebook.add(DB_Werte )
 Notebook.tab(3, text = "DB-Werte")
 
-Seite_5 = ttk.Frame(Notebook)
-Notebook.add(Seite_5 )
+# Treeview missbrauchen für Tabellenansicht
+daten_tabelle = ttk.Treeview(DB_Werte, columns = ("Id", "Name", "Ort", "Wert_1", "Wert_2"))
+#daten_tabelle.column("#0", width = 0)
+daten_tabelle.heading("#1", text = "Id")
+daten_tabelle.column("#1", width = 30, anchor = tk.CENTER)
+daten_tabelle.heading("#2", text = "Name")
+daten_tabelle.heading("#3", text = "Ort")
+daten_tabelle.heading("#4", text = "Wert 1")
+daten_tabelle.heading("#5", text = "Wert 2")
+
+# Verhindern, dass erste Spalte angezeigt wird
+daten_tabelle['show'] = 'headings'
+
+# Holt alle Datensätze aus der DB und packt sie in die "Tabelle"
+alle_daten = db.Klaeranlage.objects.all()
+for alle in alle_daten:
+   daten_tabelle.insert("", "end", text = alle.id, values = (str(alle.id) +" "+ alle.name +" "+ alle.ort +" "+ alle.wert1 +" "+ alle.wert2) )
+
+daten_tabelle.pack(anchor = "n", expand = True, fill = "both", side = "top")
+
+
+# 5. Notebook-Blatt: Erweitert
+Erweitert = ttk.Frame(Notebook)
+Notebook.add(Erweitert)
 Notebook.tab(4, text = "Erweitert")
 
 # Notebook nach oben packen und nach links und rechts ausdehnen
@@ -154,12 +186,7 @@ statuszeile = ttk.Label(master = root_Fenster, textvariable = inhalt_Statuszeile
 
 # Statuszeile nach unten packen udn links und rechts ausdehnen
 statuszeile.pack(anchor = "s", expand = False, fill = "x", side = "bottom")
-#statuszeile.grid(sticky = (tk.W, tk.E, tk.S), row = 1)
-
-
-
-
-
+# statuszeile.grid(sticky = (tk.W, tk.E, tk.S), row = 1)
 
 
 # ==============================================================================
@@ -167,13 +194,3 @@ statuszeile.pack(anchor = "s", expand = False, fill = "x", side = "bottom")
 # ==============================================================================
 root_Fenster.mainloop()
 
-
-"""
-
-# ==============================================================================
-# GUI Starten
-# ==============================================================================
-
-root_Tk.mainloop()
-
-"""
