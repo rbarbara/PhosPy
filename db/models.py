@@ -26,3 +26,8 @@ class Klaeranlage(BasisModell):
     def CSV_import(self, titelzeile = False):
         pass
 
+    def ausgabe(self):
+        print(self.id)
+
+    def treeview_ausgabe(self):
+        return str(self.id) +" "+ self.name +" "+ self.ort +" "+ self.wert1 +" "+ self.wert2
