@@ -122,10 +122,37 @@ Notebook.enable_traversal()
 # 1. Notebook-Blatt: Übersicht mit Kläranlagen-Schema
 KA_uebersicht = ttk.Frame(Notebook)
 Notebook.add(KA_uebersicht)
-Notebook.tab(0, text = "Übersicht", sticky = tk.W)
+Notebook.tab(0, text = "Übersicht", sticky = tk.N)
 
-#ganze_Anlage = ttk.LabelFrame(KA_uebersicht, text = "Komplette Anlage")
-#ganze_Anlage.pack()
+# LabelFrames für diverse Anlagenteile
+ganze_Anlage = ttk.LabelFrame(KA_uebersicht, text = "Name der aktiven Kläranlage")
+# Mechanische Reinigung
+mechanische_Reinigung = ttk.LabelFrame(ganze_Anlage, text = "Mechanische Reinigung")
+irgendein_Knopf2 = ttk.Button(mechanische_Reinigung, text = "Anzeigehelfer")
+irgendein_Knopf2.pack(anchor = "center")
+biologische_Reinigung = ttk.LabelFrame(ganze_Anlage, text = "Biologische Reinigung")
+irgendein_Knopf3 = ttk.Button(biologische_Reinigung, text = "Anzeigehelfer")
+irgendein_Knopf3.pack(anchor = "center")
+schlammbehandlung = ttk.LabelFrame(ganze_Anlage, text = "Schlammbehandlung")
+irgendein_Knopf4 = ttk.Button(schlammbehandlung, text = "Anzeigehelfer")
+irgendein_Knopf4.pack(anchor = "center")
+schlammverbrennung = ttk.LabelFrame(ganze_Anlage, text = "Schlammverbrennung")
+irgendein_Knopf5 = ttk.Button(schlammverbrennung, text = "Anzeigehelfer")
+irgendein_Knopf5.pack(anchor = "center")
+
+#mechanische_Reinigung.pack(anchor = "nw", side = "top", fill = "both", expand = True)
+mechanische_Reinigung.grid(column = 0, row = 0, sticky = tk.N + tk.E + tk.S + tk.W)
+#biologische_Reinigung.pack(anchor = "ne")
+biologische_Reinigung.grid(column = 1, row = 0, columnspan = 2, sticky = tk.N + tk.E + tk.S + tk.W)
+#schlammbehandlung.pack(anchor = "sw")
+schlammbehandlung.grid(column = 0, row = 1, columnspan = 2, sticky = tk.N + tk.E + tk.S + tk.W)
+#schlammverbrennung.pack(anchor = "se")
+schlammverbrennung.grid(column = 2, row = 1, sticky = tk.N + tk.E + tk.S + tk.W)
+
+
+#irgendein_Knopf = ttk.Button(ganze_Anlage, text = "Anzeigehelfer")
+#irgendein_Knopf.pack()
+ganze_Anlage.pack(anchor = "center", expand = True, fill = "both", side = "top")
 
 
 
