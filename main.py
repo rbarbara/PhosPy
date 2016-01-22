@@ -194,6 +194,7 @@ for alle in alle_daten:
 daten_tabelle.pack(anchor = "n", expand = True, fill = "both", side = "top")
 
 
+
 # 5. Notebook-Blatt: Erweitert
 Erweitert = ttk.Frame(Notebook)
 Notebook.add(Erweitert)
