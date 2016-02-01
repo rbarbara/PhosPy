@@ -1,10 +1,15 @@
-==Installation==
-===Installation unter Linux===
+Installation
+============
 
-===Installation unter Windows===
+Installation unter Linux
+------------------------
+
+Installation unter Windows
+--------------------------
 
 
-===Installation unter OS X===
+Installation unter OS X
+-----------------------
 Um PhosPy auszuführen wird empfohlen, auf die aktuelle Python-Version aus der Homebrew-Paketverwaltung {http://homebrew.io) zurückzugreifen.
 
 Installation von Python3 und Django:
