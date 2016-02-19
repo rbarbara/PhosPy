@@ -2,21 +2,64 @@
 # -*- coding: utf-8 -*-
 
 from django.db import models
+import Default_Werte as Initial
 
 # Basismodell abstract!
 class BasisModell(models.Model):
-    created = models.DateTimeField(auto_now_add = True)
-    touched = models.DateTimeField(auto_now = True)
+    erstellt = models.DateTimeField(auto_now_add = True)
+    zuletzt_geaendert = models.DateTimeField(auto_now = True)
 
     class Meta:
         abstract = True
 
-# Klasse für die Datenbankabbildung der Kläranlage
+# Klasse für den Ort der Kläranlage
+class Ort(models.Model):
+    ort = models.CharField(max_length = 50, default = "")
+
+# Klasse für die Datenbankabbildung der Kläranlaged
 class Klaeranlage(BasisModell):
     name = models.CharField(max_length = 100)
-    ort = models.CharField(max_length = 50)
-    wert1 = models.CharField(max_length = 50, default = "nope")
-    wert2 = models.CharField(max_length = 50, default = "nope")
+    ort_ID = models.ForeignKey(Ort, default = 0)
+    zuletzt_aktiv = models.BooleanField(default = False)
+    abwasserabgabe_phosphor = models.DecimalField(max_digits = 10, decimal_places = 9, default = 2.0)
+    kosten_schlammentsorgung = models.DecimalField(max_digits = 10, decimal_places = 9, default = 0.0)
+    #wert1 = models.CharField(max_length = 50, default = Initial.wert_1)
+    #wert2 = models.CharField(max_length = 50, default = "nope")
+
+class Probenahmestelle(BasisModell):
+    abkuerzung = models.CharField(max_length = 10, default = "")
+    stelle = models.CharField(max_length = 50, default = "")
+    hilfetext = models.TextField(max_length = 200, default = "")
+
+# Probe Zeitspanne
+class Probe_Zeitspanne(BasisModell):
+    zeitraum = models.CharField(max_length = 20, default = "")
+
+# Probe flüssig
+class Probe(BasisModell):
+    klaeranlage_ID = models.ForeignKey(Klaeranlage)
+    probe_zeitspanne_ID = models.ForeignKey(Probe_Zeitspanne)
+    durchfluss = models.DecimalField(max_digits = 10, decimal_places = 9, default = 0.0)
+    p_ges = models.DecimalField(max_digits = 10, decimal_places = 9, default = 0.0)
+    n_ges = models.DecimalField(max_digits = 10, decimal_places = 9, default = 0.0)
+    gerechnet = models.NullBooleanField(default = None)
+
+# Probe Asche/Schlamm
+class Probe_Asche(BasisModell):
+    klaeranlage_ID = models.ForeignKey(Klaeranlage)
+    probe_zeitspanne_ID = models.ForeignKey(Probe_Zeitspanne)
+    menge = models.DecimalField(max_digits = 10, decimal_places = 9, default = 0.0)
+    entsorgungskosten = models.DecimalField(max_digits = 10, decimal_places = 9, default = 0.0)
+
+# Verfahren
+class Verfahren(BasisModell):
+    klaeranlage_ID = models.ForeignKey(Klaeranlage)
+    ansatzpunkt = models.ForeignKey(Probenahmestelle)
+    prozent_entnahme = models.DecimalField(max_digits = 10, decimal_places = 9)
+    investkosten = models.DecimalField(max_digits = 10, decimal_places = 9)
+    betriebskosten = models.DecimalField(max_digits = 10, decimal_places = 9) # Pro kg P
+    verkaufserkloes = models.DecimalField(max_digits = 10, decimal_places = 9) # Pro kg P
+
 
     # Funktion zum exportieren im CSV-Format
     def CSV_export(self, titelzeile = False):
