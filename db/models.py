@@ -58,7 +58,7 @@ class Verfahren(BasisModell):
     prozent_entnahme = models.DecimalField(max_digits = 10, decimal_places = 9)
     investkosten = models.DecimalField(max_digits = 10, decimal_places = 9)
     betriebskosten = models.DecimalField(max_digits = 10, decimal_places = 9) # Pro kg P
-    verkaufserkloes = models.DecimalField(max_digits = 10, decimal_places = 9) # Pro kg P
+    verkaufserloes = models.DecimalField(max_digits = 10, decimal_places = 9) # Pro kg P
 
 
     # Funktion zum exportieren im CSV-Format
