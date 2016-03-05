@@ -19,4 +19,5 @@ SECRET_KEY = 'meinsecretkey'
 
 INSTALLED_APPS = (
     'db',
+    'django_extensions',
     )

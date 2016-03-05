@@ -108,6 +108,15 @@ for jeden in styles_Liste:
 # viertes Untermenü zu Hauptmenü hinzufügen
 hauptmenue_Zeile.add_cascade(label = "Styles", menu = menue_Styles)
 
+# Combobox für Datensätze ======================================================
+#country = ['USA', 'Canada', 'Australia']
+#countryvar = tk.StringVar()
+#countryvar.set("blalalalala")
+#menue_Combobox = ttk.Combobox(master = hauptmenue_Zeile, justify = tk.LEFT, textvariable = countryvar)
+#menue_Combobox['values'] = country
+#hauptmenue_Zeile.add_cascade(menu = menue_Combobox)
+#menue_Combobox.set(1)
+
 
 # Werkzeugleiste ===============================================================
 werkzeugleiste = ttk.Frame(master = root_Fenster, borderwidth = 1)

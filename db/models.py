@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 
 from django.db import models
-import Default_Werte as Initial
+#import Default_Werte as Initial
+
 
 # Basismodell abstract!
 class BasisModell(models.Model):
@@ -12,9 +13,16 @@ class BasisModell(models.Model):
     class Meta:
         abstract = True
 
+
+# Abstrake Klases für das Grundschema eines Verfahrens
+class Verfahren(BasisModell):
+
+
+
 # Klasse für den Ort der Kläranlage
 class Ort(models.Model):
-    ort = models.CharField(max_length = 50, default = "")
+    ort = models.CharField(max_length = 100, default = "")
+
 
 # Klasse für die Datenbankabbildung der Kläranlaged
 class Klaeranlage(BasisModell):
@@ -26,14 +34,17 @@ class Klaeranlage(BasisModell):
     #wert1 = models.CharField(max_length = 50, default = Initial.wert_1)
     #wert2 = models.CharField(max_length = 50, default = "nope")
 
+
 class Probenahmestelle(BasisModell):
     abkuerzung = models.CharField(max_length = 10, default = "")
     stelle = models.CharField(max_length = 50, default = "")
     hilfetext = models.TextField(max_length = 200, default = "")
 
+
 # Probe Zeitspanne
 class Probe_Zeitspanne(BasisModell):
     zeitraum = models.CharField(max_length = 20, default = "")
+
 
 # Probe flüssig
 class Probe(BasisModell):
@@ -44,12 +55,14 @@ class Probe(BasisModell):
     n_ges = models.DecimalField(max_digits = 10, decimal_places = 9, default = 0.0)
     gerechnet = models.NullBooleanField(default = None)
 
+
 # Probe Asche/Schlamm
 class Probe_Asche(BasisModell):
     klaeranlage_ID = models.ForeignKey(Klaeranlage)
     probe_zeitspanne_ID = models.ForeignKey(Probe_Zeitspanne)
     menge = models.DecimalField(max_digits = 10, decimal_places = 9, default = 0.0)
     entsorgungskosten = models.DecimalField(max_digits = 10, decimal_places = 9, default = 0.0)
+
 
 # Verfahren
 class Verfahren(BasisModell):
@@ -60,6 +73,8 @@ class Verfahren(BasisModell):
     betriebskosten = models.DecimalField(max_digits = 10, decimal_places = 9) # Pro kg P
     verkaufserloes = models.DecimalField(max_digits = 10, decimal_places = 9) # Pro kg P
 
+    class Meta:
+        abstract = True
 
     # Funktion zum exportieren im CSV-Format
     def CSV_export(self, titelzeile = False):
