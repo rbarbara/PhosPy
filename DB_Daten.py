@@ -208,36 +208,91 @@ class KA_Datensatz():
 
 
     # Funktion schreibt Kläranlagen Datensatz in die DB
-    def speicher_klaeranalge(self):
-        pass
+    # self.ds muss vorher schon auf den richtigen DS gesetzt sein!
+    def speicher_klaeranlage(self):
+        try:
+            self.ds.abwasserabgabe_n = self.abwasserabgabe_n.get()
+            self.ds.abwasserabgabe_p = self.abwasserabgabe_p.get()
+            self.ds.kosten_schlammentsorgung = self.kosten_schlammentsorgung.get()
+            # Ort erstellen oder aus der DB holen
+            mein_ort = db.Ort.objects.get_or_create(ort = self.org.get())[0]
+            mein_ort.save()
+            self.ds.ort = mein_ort
+            # Kläranlagen Datensatz speichern
+            self.ds.save()
+            return True
+        except:
+            return False
 
     # Fkt schreibt Probenahmestelle in DB
-    def speicher_probenahmestelle(self, pns = 0, alle = False):
-        pass
+    # self.ds muss vorher schon auf den richtigen DS gesetzt sein!
+    def speicher_probenahmestelle(self, pns = 0):
+        if pns <= 0:
+            return False
+        elif pns <= 6:
+            try:
+                # Passende Probenahmestelle zur KA und zur Stelle aus der DB holen oder erstellen
+                meine_probenahmestelle = db.probe_fluessig.objects.get_or_create(klaeranlage = self.ds, probe_probenahmestelle_id = pns)
+                meine_probenahmestelle.durchfluss = self.pns[pns]["durchfluss"].get()
+                meine_probenahmestelle.p_ges = self.pns[pns]["p_po4"].get()
+                meine_probenahmestelle.p_po4 = self.pns[pns]["p_ges"].get()
+                meine_probenahmestelle.save()
+                return True
+            except:
+                return False
+        elif pns <= 8:
+            try:
+                # Passende Probenahmestelle zur KA und zur Stelle aus der DB holen oder erstellen
+                meine_probenahmestelle = db.probe_schlamm_asche.objects.get_or_create(klaeranlage = self.ds, probe_probenahmestelle_id = pns)
+                meine_probenahmestelle.menge = self.pns[pns]["menge"].get()
+                meine_probenahmestelle.p_ges_massenanteil = self.pns[pns]["p_ges_massenanteil"].get()
+                meine_probenahmestelle.save()
+                return True
+            except:
+                return False
+        else:
+            return False
 
     # Fkt schreibt alle Probenahmestellen in DB
+    # self.ds muss vorher schon auf den richtigen DS gesetzt sein!
     def speicher_alle_probenahmestellen(self):
-        pass
+        for i in [1, 2, 3, 4, 5, 6, 7, 8]:
+            if not self.speicher_probenahmestelle(i):
+                return False
+        return True
 
     # Fkt schreibt Verfahren Ablauf Daten in die DB
+    # self.ds muss vorher schon auf den richtigen DS gesetzt sein!
     def speicher_verfahren_ablauf(self):
         pass
 
     # Fkt schreibt Verfahren Schlammwasser Daten in die DB
+    # self.ds muss vorher schon auf den richtigen DS gesetzt sein!
     def speicher_verfahren_schlammwasser(self):
         pass
 
     # Fkt schreibt Verfahren Faulschlamm Daten in die DB
+    # self.ds muss vorher schon auf den richtigen DS gesetzt sein!
     def speicher_verfahren_faulschlamm(self):
         pass
 
     # Fkt schreibt Verfahren Asche Daten in die DB
+    # self.ds muss vorher schon auf den richtigen DS gesetzt sein!
     def speicher_verfahren_asche(self):
         pass
 
     # Fkt schreibt alle Verfahren in die DB
+    # self.ds muss vorher schon auf den richtigen DS gesetzt sein!
     def speicher_alle_verfahren(self):
-        pass
+        if not self.speicher_verfahren_ablauf():
+            return False
+        if not self.speicher_verfahren_schlammwasser():
+            return False
+        if not self.speicher_verfahren_faulschlamm():
+            return False
+        if not self.speicher_verfahren_asche():
+            return False
+        return True
 
     # Fkt lädt Kläranlagen-Tabelle aus DB
     # in self.ds muss schon der richtige Datensatz geladen sein
