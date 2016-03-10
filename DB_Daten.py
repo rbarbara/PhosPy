@@ -146,19 +146,43 @@ class KA_Datensatz():
 
     # Funktion speichert den aktiven Datensatz als neuen Datensatz oder überschreibt einen alten je nach dem Flag "ueberschreiben"
     # id_ueberschreiben wird ignoriert wenn ueberschreiben = False
-    def speicher_Datensatz(self, ueberschreiben = False, id_ueberschreiben = 0):
+    def speicher_Datensatz(self, ueberschreiben = False):
         # Genannten Datensatz ueberschreiben
         if ueberschreiben:
             try:
-                self.ds = db.Klaeranlage.objects.get(id = id_ueberschreiben)# Checken ob die ID überhaupt existiert
+                # Checken ob die ID überhaupt existiert
+                self.ds = db.Klaeranlage.objects.get(id = self.id).select_related('ort', 'probe_fluessig',
+                    'probe_schlamm_asche', 'probenahmestelle', 'verfahren_ablauf', 'verfahren_asche',
+                    'verfahren_faulschlamm', 'verfahren_schlammwasser', 'zeitspanne')
             except:
-                status_string = "Datensatz mit der id: " + str(id_ueberschreiben) + " existiert nicht, überschreiben nicht möglich"
+                status_string = "Datensatz mit der id: " + str(self.id) + " existiert nicht, überschreiben nicht möglich"
                 self.statuszeile.set(status_string)
+                return False
 
-        # Neuen Datensatz bauen
+        # Neuen Datensatz bauen und in self.ds laden
         else:
             # Funktion erstellt kompletten neuen Datensatz und gibt die ID zurück
-            pass
+            self.__new__()
+            # Den neu erstellten Datensatz in der DB mit self.ds verknüpfen
+            try:
+                self.ds = db.Klaeranlage.objects.get(id = self.id).select_related('ort', 'probe_fluessig',
+                    'probe_schlamm_asche', 'probenahmestelle', 'verfahren_ablauf', 'verfahren_asche',
+                    'verfahren_faulschlamm', 'verfahren_schlammwasser', 'zeitspanne')
+            except:
+                return False
+
+        # Alles speichern
+        try:
+            self.speicher_alle_verfahren()
+            self.speicher_alle_probenahmestellen()
+            self.speicher_klaeranlage()
+            self.statuszeile.set("Datensatz #%s geschrieben" % self.id)
+            return True
+        except:
+            return False
+
+
+
 
     # Funktion erstellt einen neuen leeren Datensatz und gibt die ID des Kläranlagen-Objekts zurück
     def __new__():
@@ -182,6 +206,7 @@ class KA_Datensatz():
             for i in [7, 8]:
                 meine_probenahmestelle = db.probe_schlamm_asche.objects.create(klaeranlage = meine_ka, probe_probenahmestelle = i)
                 meine_probenahmestelle.save()
+            self.id = meine_ka.id
             return meine_id
         except:
             return False
@@ -232,7 +257,7 @@ class KA_Datensatz():
         elif pns <= 6:
             try:
                 # Passende Probenahmestelle zur KA und zur Stelle aus der DB holen oder erstellen
-                meine_probenahmestelle = db.probe_fluessig.objects.get_or_create(klaeranlage = self.ds, probe_probenahmestelle_id = pns)
+                meine_probenahmestelle = db.probe_fluessig.objects.get_or_create(klaeranlage = self.ds, probe_probenahmestelle_id = pns)[0]
                 meine_probenahmestelle.durchfluss = self.pns[pns]["durchfluss"].get()
                 meine_probenahmestelle.p_ges = self.pns[pns]["p_po4"].get()
                 meine_probenahmestelle.p_po4 = self.pns[pns]["p_ges"].get()
@@ -243,7 +268,7 @@ class KA_Datensatz():
         elif pns <= 8:
             try:
                 # Passende Probenahmestelle zur KA und zur Stelle aus der DB holen oder erstellen
-                meine_probenahmestelle = db.probe_schlamm_asche.objects.get_or_create(klaeranlage = self.ds, probe_probenahmestelle_id = pns)
+                meine_probenahmestelle = db.probe_schlamm_asche.objects.get_or_create(klaeranlage = self.ds, probe_probenahmestelle_id = pns)[0]
                 meine_probenahmestelle.menge = self.pns[pns]["menge"].get()
                 meine_probenahmestelle.p_ges_massenanteil = self.pns[pns]["p_ges_massenanteil"].get()
                 meine_probenahmestelle.save()
@@ -264,22 +289,70 @@ class KA_Datensatz():
     # Fkt schreibt Verfahren Ablauf Daten in die DB
     # self.ds muss vorher schon auf den richtigen DS gesetzt sein!
     def speicher_verfahren_ablauf(self):
-        pass
+        try:
+            # Passendes Verfahren aus der Datenbank holen
+            mein_verf = self.ds.verfahren_ablauf.objects.get_or_create(klaeranlage = self.ds)[0]
+            mein_verf.p_prozent_entnahme = self.verf_ablauf["p_prozent_entnahme"].get()
+            mein_verf.investkosten = self.verf_ablauf["investkosten"].get()
+            mein_verf.betriebskosten_pro_p = self.verf_ablauf["betriebskosten_pro_p"].get()
+            mein_verf.verkaufserloes_pro_p = self.verf_ablauf["verkaufserloes_pro_p"].get()
+            mein_verf.zeitspanne_abschreibung = self.verf_ablauf["zeitspanne_abschreibung"].get()
+            mein_verf.save()
+            return True
+        except:
+            return False
 
     # Fkt schreibt Verfahren Schlammwasser Daten in die DB
     # self.ds muss vorher schon auf den richtigen DS gesetzt sein!
     def speicher_verfahren_schlammwasser(self):
-        pass
+        try:
+            # Passendes Verfahren aus der Datenbank holen
+            mein_verf = self.ds.verfahren_schlammwasser.objects.get_or_create(klaeranlage = self.ds)[0]
+            mein_verf.p_prozent_entnahme = self.verf_ablauf["p_prozent_entnahme"].get()
+            mein_verf.investkosten = self.verf_ablauf["investkosten"].get()
+            mein_verf.betriebskosten_pro_p = self.verf_ablauf["betriebskosten_pro_p"].get()
+            mein_verf.verkaufserloes_pro_p = self.verf_ablauf["verkaufserloes_pro_p"].get()
+            mein_verf.zeitspanne_abschreibung = self.verf_ablauf["zeitspanne_abschreibung"].get()
+            mein_verf.n_nh4_vorher = self.verf_schlammwasser["n_nh4_vorher"].get()
+            mein_verf.n_nh4_prozent_entnahme = self.verf_schlammwasser["n_nh4_prozent_entnahme"].get()
+            mein_verf.save()
+            return True
+        except:
+            return False
 
     # Fkt schreibt Verfahren Faulschlamm Daten in die DB
     # self.ds muss vorher schon auf den richtigen DS gesetzt sein!
     def speicher_verfahren_faulschlamm(self):
-        pass
+        try:
+            # Passendes Verfahren aus der Datenbank holen
+            mein_verf = self.ds.verfahren_faulschlamm.objects.get_or_create(klaeranlage = self.ds)[0]
+            mein_verf.p_prozent_entnahme = self.verf_ablauf["p_prozent_entnahme"].get()
+            mein_verf.investkosten = self.verf_ablauf["investkosten"].get()
+            mein_verf.betriebskosten_pro_p = self.verf_ablauf["betriebskosten_pro_p"].get()
+            mein_verf.verkaufserloes_pro_p = self.verf_ablauf["verkaufserloes_pro_p"].get()
+            mein_verf.zeitspanne_abschreibung = self.verf_ablauf["zeitspanne_abschreibung"].get()
+            mein_verf.kosten_schlammentsorgung = self.verf_faulschlamm["kosten_schlammentsorgung"].get()
+            mein_verf.save()
+            return True
+        except:
+            return False
 
     # Fkt schreibt Verfahren Asche Daten in die DB
     # self.ds muss vorher schon auf den richtigen DS gesetzt sein!
     def speicher_verfahren_asche(self):
-        pass
+        try:
+            # Passendes Verfahren aus der Datenbank holen
+            mein_verf = self.ds.verfahren_asche.objects.get_or_create(klaeranlage = self.ds)[0]
+            mein_verf.p_prozent_entnahme = self.verf_ablauf["p_prozent_entnahme"].get()
+            mein_verf.investkosten = self.verf_ablauf["investkosten"].get()
+            mein_verf.betriebskosten_pro_p = self.verf_ablauf["betriebskosten_pro_p"].get()
+            mein_verf.verkaufserloes_pro_p = self.verf_ablauf["verkaufserloes_pro_p"].get()
+            mein_verf.zeitspanne_abschreibung = self.verf_ablauf["zeitspanne_abschreibung"].get()
+            mein_verf.kosten_schlammverbrennung = self.verf_asche["kosten_schlammverbrennung"].get()
+            mein_verf.save()
+            return True
+        except:
+            return False
 
     # Fkt schreibt alle Verfahren in die DB
     # self.ds muss vorher schon auf den richtigen DS gesetzt sein!
@@ -409,9 +482,10 @@ class KA_Datensatz():
         mein_verf = self.ds.verfahren_asche_set.all()[0]
         self.verf_asche["p_prozent_entnahme"].set(mein_verf.p_prozent_entnahme)
         self.verf_asche["investkosten"].set(mein_verf.investkosten)
-        self.asche["betriebskosten_pro_p"].set(mein_verf.betriebskosten_pro_p)
-        self.asche["verkaufserloes_pro_p"].set(mein_verf.verkaufserloes_pro_p)
-        self.asche["zeitspanne_abschreibung"].set(mein_verf.zeitspanne_abschreibung)
+        self.verf_asche["betriebskosten_pro_p"].set(mein_verf.betriebskosten_pro_p)
+        self.verf_asche["verkaufserloes_pro_p"].set(mein_verf.verkaufserloes_pro_p)
+        self.verf_asche["zeitspanne_abschreibung"].set(mein_verf.zeitspanne_abschreibung)
+        self.verf_asche["kosten_schlammverbrennung"].set(mein_verf.kosten_schlammverbrennung)
 
     # Fkt lädt alle Verfahren aus der DB
     # in self.ds muss schon der richtige Datensatz geladen sein
