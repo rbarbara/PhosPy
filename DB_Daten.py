@@ -157,7 +157,34 @@ class KA_Datensatz():
 
         # Neuen Datensatz bauen
         else:
+            # Funktion erstellt kompletten neuen Datensatz und gibt die ID zurück
             pass
+
+    # Funktion erstellt einen neuen leeren Datensatz und gibt die ID des Kläranlagen-Objekts zurück
+    def __new__():
+        try:
+            mein_ort = db.Ort.objects.create(ort = "Default Ort")
+            mein_ort.save()
+            meine_ka = db.Klaeranlage.objects.create(ort = mein_ort)
+            meine_ka.save()
+            meine_id = meine_ka.id
+            mein_verf_abl = db.verfahren_ablauf.objects.create(klaeranlage = meine_ka, ansatzpunkt_id = 3)
+            mein_verf_abl.save()
+            mein_verf_schlw = db.verfahren_schlammwasser.objects.create(klaeranlage = meine_ka, ansatzpunkt_id = 2)
+            mein_verf_schlw.save()
+            mein_verf_faulschl = db.verfahren_faulschlamm.objects.create(klaeranlage = meine_ka, ansatzpunkt_id = 6)
+            mein_verf_faulschl.save()
+            mein_verf_asche = db.verfahren_asche.objects.create(klaeranlage = meine_ka, ansatzpunkt_id = 8)
+            mein_verf_asche.save()
+            for i in [1, 2, 3, 4, 5, 6]:
+                meine_probenahmestelle = db.probe_fluessig.objects.create(klaeranlage = meine_ka, probe_probenahmestelle_id = i)
+                meine_probenahmestelle.save()
+            for i in [7, 8]:
+                meine_probenahmestelle = db.probe_schlamm_asche.objects.create(klaeranlage = meine_ka, probe_probenahmestelle = i)
+                meine_probenahmestelle.save()
+            return meine_id
+        except:
+            return False
 
     # Einmal alles berechnen neu Triggern
     def alles_berechnen(self):
@@ -181,35 +208,35 @@ class KA_Datensatz():
 
 
     # Funktion schreibt Kläranlagen Datensatz in die DB
-    def schreibe_klaeranalge_in_db(self):
+    def speicher_klaeranalge(self):
         pass
 
     # Fkt schreibt Probenahmestelle in DB
-    def schreibe_probenahmestelle_in_db(self, pns = 0, alle = False):
+    def speicher_probenahmestelle(self, pns = 0, alle = False):
         pass
 
     # Fkt schreibt alle Probenahmestellen in DB
-    def schreibe_alle_probenahmestellen_in_db(self):
+    def speicher_alle_probenahmestellen(self):
         pass
 
     # Fkt schreibt Verfahren Ablauf Daten in die DB
-    def schreibe_verfahren_ablauf_in_db(self):
+    def speicher_verfahren_ablauf(self):
         pass
 
     # Fkt schreibt Verfahren Schlammwasser Daten in die DB
-    def schreibe_verfahren_schlammwasser_in_db(self):
+    def speicher_verfahren_schlammwasser(self):
         pass
 
     # Fkt schreibt Verfahren Faulschlamm Daten in die DB
-    def schreibe_verfahren_faulschlamm_in_db(self):
+    def speicher_verfahren_faulschlamm(self):
         pass
 
     # Fkt schreibt Verfahren Asche Daten in die DB
-    def schreibe_verfahren_asche_in_db(self):
+    def speicher_verfahren_asche(self):
         pass
 
     # Fkt schreibt alle Verfahren in die DB
-    def schreibe_verfahren_in_die_db(self):
+    def speicher_alle_verfahren(self):
         pass
 
     # Fkt lädt Kläranlagen-Tabelle aus DB
