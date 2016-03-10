@@ -98,7 +98,6 @@ class KA_Datensatz():
 
         self.statuszeile.set("Initialisieren fertig")
 
-        #self.lade_Datensatz()
 
         # Daten_berechnen
 
@@ -130,7 +129,7 @@ class KA_Datensatz():
 
 
     # Fkt lädt letzten aktiven Datensatz, das Flag "zuletzt_aktiv" wird dafür ausgelesen
-    def lade_letzten_aktiven_Datensatz(self):
+    def lade_letzten_aktiven_datensatz(self):
         try:
             # Alle Datensätze mit dem aktive-Flag heraus holen
             aktive_ds = db.Klaeranlage.objects.filter(zuletzt_aktiv = True)
@@ -151,7 +150,7 @@ class KA_Datensatz():
 
     # Funktion speichert den aktiven Datensatz als neuen Datensatz oder überschreibt einen alten je nach dem Flag "ueberschreiben"
     # id_ueberschreiben wird ignoriert wenn ueberschreiben = False
-    def speicher_Datensatz(self, ueberschreiben = False):
+    def speicher_datensatz(self, ueberschreiben = False):
         # Genannten Datensatz ueberschreiben
         if ueberschreiben:
             try:
