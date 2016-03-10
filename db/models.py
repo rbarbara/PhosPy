@@ -19,11 +19,18 @@ class Ort(models.Model):
     ort = models.CharField(max_length = 50, default = "")
 
 
+# Zeitspanne
+class Zeitspanne(BasisModell):
+    zeitraum = models.CharField(max_length = 20, default = "")
+    zeitraum_pro = models.CharField(max_length = 20, default = "")
+
+
 # Klasse für die Datenbankabbildung der Kläranlage
 class Klaeranlage(BasisModell):
     name = models.CharField(max_length = 100)
     ort = models.ForeignKey(Ort, default = 0)
     zuletzt_aktiv = models.BooleanField(default = False)
+    zeitschritt_zuletzt_angezeigt = models.ForeignKey(Zeitspanne, default = 1)
     abwasserabgabe_p = models.DecimalField(max_digits = 10, decimal_places = 5, default = 11.93)
     abwasserabgabe_n = models.DecimalField(max_digits = 10, decimal_places = 5, default = 7.158)
     kosten_schlammentsorgung = models.DecimalField(max_digits = 10, decimal_places = 5, default = 0.0)
@@ -34,12 +41,6 @@ class Probenahmestelle(BasisModell):
     abkuerzung = models.CharField(max_length = 10, default = "")
     stelle = models.CharField(max_length = 50, default = "")
     hilfetext = models.TextField(max_length = 200, default = "")
-
-
-# Zeitspanne
-class Zeitspanne(BasisModell):
-    zeitraum = models.CharField(max_length = 20, default = "")
-    zeitraum_pro = models.CharField(max_length = 20, default = "")
 
 
 # Probe flüssig

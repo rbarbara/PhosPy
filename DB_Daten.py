@@ -29,7 +29,7 @@ class KA_Datensatz():
         self.statuszeile.set("Laden..")
 
         self.id = 1
-
+        # Datensatz
         self.ds = db.Klaeranlage.objects.filter(id = self.id).select_related('ort', 'probe_fluessig', 'probe_schlamm_asche',
             'probenahmestelle', 'verfahren_ablauf', 'verfahren_asche', 'verfahren_faulschlamm',
             'verfahren_schlammwasser', 'zeitspanne')[0]
@@ -103,7 +103,7 @@ class KA_Datensatz():
         # Daten_berechnen
 
     # Fkt lädt einen bestimmten Datensatz
-    def lade_Datensatz(self, ka_id = 1):
+    def lade_datensatz(self, ka_id = 1):
         pass
         # Am Ende Statuszeile auf "Datensatz Nr. bla geladen"
         # Testen ob es den Datensatz überhaupt gibt:
@@ -111,9 +111,21 @@ class KA_Datensatz():
             self.ds = db.Klaeranlage.objects.filter(id = ka_id).select_related('ort', 'probe_fluessig', 'probe_schlamm_asche',
                 'probenahmestelle', 'verfahren_ablauf', 'verfahren_asche', 'verfahren_faulschlamm',
                 'verfahren_schlammwasser', 'zeitspanne')[0]
-            # Tu Dinge
+
+            # Erst den KA Datensatz auslesen
+            if not self.lade_klaeranlage():
+                return False
+            # Dann die Probenahmestellen Datensätze auslesen - alle
+            if not self.lade_alle_proben():
+                return False
+            # Dann die Verfahren Datensätze auslesen
+            if not self.lade_alle_verfahren():
+                return False
+
+            self.statuszeile.set("Datensatz %s geladen" % str(self.ds.id))
+            return True
         except:
-            self.statuszeile.set("Den angeforderten Datensatz gibt es nicht")
+            self.statuszeile.set("Den angeforderten Datensatz gibt es nicht oder irgend etwas ist schief gelaufen")
             return False
 
 
@@ -138,7 +150,7 @@ class KA_Datensatz():
         # Genannten Datensatz ueberschreiben
         if ueberschreiben:
             try:
-                mein_DS = db.Klaeranlage.objects.get(id = id_ueberschreiben)# Checken ob die ID überhaupt existiert
+                self.ds = db.Klaeranlage.objects.get(id = id_ueberschreiben)# Checken ob die ID überhaupt existiert
             except:
                 status_string = "Datensatz mit der id: " + str(id_ueberschreiben) + " existiert nicht, überschreiben nicht möglich"
                 self.statuszeile.set(status_string)
@@ -153,14 +165,14 @@ class KA_Datensatz():
         pass
 
     # Aus einer CSV-Datei Datensätze lesen
-    def lese_CSV_Datei(self, dateiname):
+    def lese_csv_datei(self, dateiname):
         # Checken ob es das File überhaupt gibt -> sonst Fehler in Statuszeile und
         # Erst checken ob das File dem gewünschten Format entspricht!
         # Wenn nicht wenn möglich sagen in welcher Zeile ein Fehler ist
         # Tu Dinge
         pass
 
-    def schreibe_CSV_Datei(self, dateiname):
+    def schreibe_csv_datei(self, dateiname):
         # Aufhören wenn es die Datei schon gibt oder GUI-Abfrage ob überschrieben werden soll
 
         # Komplette Datenbank ausser Default-Datensatz in ein CSV mit Titelzeile schreiben
@@ -201,31 +213,57 @@ class KA_Datensatz():
         pass
 
     # Fkt lädt Kläranlagen-Tabelle aus DB
+    # in self.ds muss schon der richtige Datensatz geladen sein
     def lade_klaeranlage(self):
-        pass
+        try:
+            self.abwasserabgabe_n.set(self.ds.abwasserabgabe_n)
+            self.abwasserabgabe_p.set(self.ds.abwasserabgabe_p)
+            self.kosten_schlammentsorgung.set(self.ds.kosten_schlammentsorgung)
+            self.ort.set(self.ds.ort.ort)
+            return True
+        except:
+            return False
 
-    # Fkt lädt Probe zu Probenahmestelle 1-6
+    # Fkt lädt Probe zu Probenahmestelle 1-6, aber nur eine!
+    # in self.ds muss schon der richtige Datensatz geladen sein
     def lade_probe_fluessig(self, stelle = 0):
-        if stelle == 0:
+        if stelle <= 0:
             return False
+        # Nur wenn die Probenahme stelle 1-6 ist etwas tun
+        elif stelle <= 6:
+            try:
+                # Passende Probe aus der Datenbank holen
+                meine_probe = self.ds.probe_fluessig_set.filter(probe_probenahmestelle_id = stelle)[0]
+                self.pns[stelle]["p_ges"].set(meine_probe.p_ges)
+                self.pns[stelle]["p_po4"].set(meine_probe.p_po4)
+                self.pns[stelle]["durchfluss"].set(meine_probe.durchfluss)
+                return True
+            except:
+                return False
         else:
-            pass
-            # Tu dinge
-            return True
-            pass
+            return False
 
-    # Fkt lädt Probe zu Probenahmestelle 7-8
+    # Fkt lädt Probe zu Probenahmestelle 7-8, aber nur eine!
+    # in self.ds muss schon der richtige Datensatz geladen sein
     def lade_probe_schlamm_asche(self, stelle = 0):
-        if stelle == 0:
+        if stelle <= 6:
             return False
+        elif stelle <= 8:
+            try:
+                # Passende Probe aus der Datenbank holen
+                meine_probe = self.ds.probe_schlamm_asche_set.filter(probe_probenahmestelle_id = stelle)[0]
+                self.pns[stelle]["menge"].set(meine_probe.menge)
+                self.pns[stelle]["p_ges_massengehalt"].set(meine_probe.p_ges_massengehalt)
+                return True
+            except:
+                return False
         else:
-            # Tu dinge
-            return True
-            pass
+            return False
 
     # Fkt lädt Probe zu einzelner Probenahmestelle aus der DB
+    # in self.ds muss schon der richtige Datensatz geladen sein
     def lade_probe(self, stelle = 0):
-        # False nichts angegeben
+        # Falls nichts angegeben
         if stelle <= 0:
             return False
         # Falls flüssige Probe
@@ -238,9 +276,77 @@ class KA_Datensatz():
             return False
 
     # Fkt lädt alle Proben an allen Probenahmestellen aus der DB
+    # in self.ds muss schon der richtige Datensatz geladen sein
     def lade_alle_proben(self):
         for x in [1, 2, 3, 4, 5, 6, 7, 8]:
-            rueck = self.lade_probe()
+            rueck = self.lade_probe(stelle = x)
             if not rueck:
                 return False
         return True
+
+    # Fkt lädt Verfahren Ablauf Daten aus der DB
+    # in self.ds muss schon der richtige Datensatz geladen sein
+    def lade_verfahren_ablauf(self):
+        # Passendes Verfahren aus der Datenbank holen
+        mein_verf = self.ds.verfahren_ablauf_set.all()[0]
+        self.verf_ablauf["p_prozent_entnahme"].set(mein_verf.p_prozent_entnahme)
+        self.verf_ablauf["investkosten"].set(mein_verf.investkosten)
+        self.verf_ablauf["betriebskosten_pro_p"].set(mein_verf.betriebskosten_pro_p)
+        self.verf_ablauf["verkaufserloes_pro_p"].set(mein_verf.verkaufserloes_pro_p)
+        self.verf_ablauf["zeitspanne_abschreibung"].set(mein_verf.zeitspanne_abschreibung)
+
+    # Fkt lädt Verfahren Schlammwasser Daten aus der DB
+    # in self.ds muss schon der richtige Datensatz geladen sein
+    def lade_verfahren_schlammwasser(self):
+        # Passendes Verfahren aus der Datenbank holen
+        mein_verf = self.ds.verfahren_schlammwasser_set.all()[0]
+        self.verf_schlammwasser["p_prozent_entnahme"].set(mein_verf.p_prozent_entnahme)
+        self.verf_schlammwasser["investkosten"].set(mein_verf.investkosten)
+        self.verf_schlammwasser["betriebskosten_pro_p"].set(mein_verf.betriebskosten_pro_p)
+        self.verf_schlammwasser["verkaufserloes_pro_p"].set(mein_verf.verkaufserloes_pro_p)
+        self.verf_schlammwasser["zeitspanne_abschreibung"].set(mein_verf.zeitspanne_abschreibung)
+        self.verf_schlammwasser["n_nh4_vorher"].set(mein_verf.n_nh4_vorher)
+        self.verf_schlammwasser["n_nh4_prozent_entnahme"].set(mein_verf.n_nh4_prozent_entnahme)
+
+    # Fkt lädt Verfahren Faulschlamm Daten aus der DB
+    # in self.ds muss schon der richtige Datensatz geladen sein
+    def lade_verfahren_faulschlamm(self):
+        # Passendes Verfahren aus der Datenbank holen
+        mein_verf = self.ds.verfahren_faulschlamm_set.all()[0]
+        self.verf_faulschlamm["p_prozent_entnahme"].set(mein_verf.p_prozent_entnahme)
+        self.verf_faulschlamm["investkosten"].set(mein_verf.investkosten)
+        self.verf_faulschlamm["betriebskosten_pro_p"].set(mein_verf.betriebskosten_pro_p)
+        self.verf_faulschlamm["verkaufserloes_pro_p"].set(mein_verf.verkaufserloes_pro_p)
+        self.verf_faulschlamm["zeitspanne_abschreibung"].set(mein_verf.zeitspanne_abschreibung)
+        self.verf_faulschlamm["kosten_schlammentsorgung"].set(mein_verf.kosten_schlammentsorgung)
+
+    # Fkt lädt Verfahren Asche Verfahren aus der DB
+    # in self.ds muss schon der richtige Datensatz geladen sein
+    def lade_verfahren_asche(self):
+        # Passendes Verfahren aus der Datenbank holen
+        mein_verf = self.ds.verfahren_asche_set.all()[0]
+        self.verf_asche["p_prozent_entnahme"].set(mein_verf.p_prozent_entnahme)
+        self.verf_asche["investkosten"].set(mein_verf.investkosten)
+        self.asche["betriebskosten_pro_p"].set(mein_verf.betriebskosten_pro_p)
+        self.asche["verkaufserloes_pro_p"].set(mein_verf.verkaufserloes_pro_p)
+        self.asche["zeitspanne_abschreibung"].set(mein_verf.zeitspanne_abschreibung)
+
+    # Fkt lädt alle Verfahren aus der DB
+    # in self.ds muss schon der richtige Datensatz geladen sein
+    def lade_alle_verfahren(self):
+        try:
+            # Lade Verfahrensdaten für das Verfahren Ablauf
+            if not self.lade_verfahren_ablauf():
+                return False
+            # Lade Verfahrensdaten für das Verfahren Schlammwasser
+            if not self.lade_verfahren_schlammwasser():
+                return False
+            # Lade Verfahrensdaten für das Verfahren Faulschlamm
+            if not self.lade_verfahren_faulschlamm():
+                return False
+            # Lade Verfahrensdaten für das Verfahren Asche
+            if not self.lade_verfahren_asche():
+                return False
+            return True
+        except:
+            return False
