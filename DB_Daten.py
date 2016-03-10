@@ -108,10 +108,10 @@ class KA_Datensatz():
         # Am Ende Statuszeile auf "Datensatz Nr. bla geladen"
         # Testen ob es den Datensatz überhaupt gibt:
         try:
-            self.ds = db.Klaeranlage.objects.filter(id = ka_id).select_related('ort', 'probe_fluessig', 'probe_schlamm_asche',
+            self.ds = db.Klaeranlage.objects.get(id = ka_id).select_related('ort', 'probe_fluessig', 'probe_schlamm_asche',
                 'probenahmestelle', 'verfahren_ablauf', 'verfahren_asche', 'verfahren_faulschlamm',
-                'verfahren_schlammwasser', 'zeitspanne')[0]
-
+                'verfahren_schlammwasser', 'zeitspanne')
+            self.id = ka_id
             # Erst den KA Datensatz auslesen
             if not self.lade_klaeranlage():
                 return False
@@ -506,3 +506,14 @@ class KA_Datensatz():
             return True
         except:
             return False
+
+    # Funktion setzt aktuellen Datensatz auf den zuletzt aktiven und alle anderen zurück
+    def setze_aktiv(self):
+        # Alle KA Datensätze heraus holen und auf nicht-aktiv setzen und speichern
+        ka = db.Klaeranlage.objects.all()
+        ka.update(zuletzt_aktiv = False)
+        ka.save()
+        # Aktuellen Datensatz heraus holen und auf aktiv setzen und speichern
+        diese_ka = ka.filter(id = self.id)
+        diese_ka.zuletzt_aktiv = True
+        diese_ka.save()
