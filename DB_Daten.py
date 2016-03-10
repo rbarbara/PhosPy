@@ -88,13 +88,18 @@ class KA_Datensatz():
         self.verf_schlammwasser["n_nh4_vorher"].set(0)
         self.verf_schlammwasser["n_nh4_prozent_entnahme"] = tk.DoubleVar()
         self.verf_schlammwasser["n_nh4_prozent_entnahme"].set(0)
-
         self.verf_schlammwasser["kosten_schlammentsorgung"] = tk.DoubleVar()
         self.verf_schlammwasser["kosten_schlammentsorgung"].set(0)
 
         self.verf_faulschlamm["kosten_schlammverbrennung"] = tk.DoubleVar()
         self.verf_faulschlamm["kosten_schlammverbrennung"].set(0)
+        self.verf_faulschlamm["n_nh4_vorher"] = tk.DoubleVar()
+        self.verf_faulschlamm["n_nh4_vorher"].set(0)
+        self.verf_faulschlamm["n_nh4_prozent_entnahme"] = tk.DoubleVar()
+        self.verf_faulschlamm["n_nh4_prozent_entnahme"].set(0)
 
+        self.verf_asche["kosten_schlammverbrennung"] = tk.DoubleVar()
+        self.verf_asche["kosten_schlammverbrennung"].set(0)
 
         self.statuszeile.set("Initialisieren fertig")
 
@@ -191,26 +196,35 @@ class KA_Datensatz():
     # Funktion erstellt einen neuen leeren Datensatz und gibt die ID des Kläranlagen-Objekts zurück
     def __new__():
         try:
+            # Ort Objekt neu erstellen und übergeben
             mein_ort = db.Ort.objects.create(ort = "Default Ort")
             mein_ort.save()
+            # Kläranlage Objekt erstellen und mit Ort verknüpfen
             meine_ka = db.Klaeranlage.objects.create(ort = mein_ort)
             meine_ka.save()
+            # ID aus dem Kläranlagenobjekt holen und merken
             meine_id = meine_ka.id
+            # Verfahren Ablauf erstellen und verknüpfen
             mein_verf_abl = db.verfahren_ablauf.objects.create(klaeranlage = meine_ka, ansatzpunkt_id = 3)
             mein_verf_abl.save()
+            # Verfahren Schlwammwasser erstellen und verknüpfen
             mein_verf_schlw = db.verfahren_schlammwasser.objects.create(klaeranlage = meine_ka, ansatzpunkt_id = 2)
             mein_verf_schlw.save()
+            # Verfahren Faulschlamm erstellen und verknüpfen
             mein_verf_faulschl = db.verfahren_faulschlamm.objects.create(klaeranlage = meine_ka, ansatzpunkt_id = 6)
             mein_verf_faulschl.save()
+            # Verfahren Asche erstellen und verknüpfen
             mein_verf_asche = db.verfahren_asche.objects.create(klaeranlage = meine_ka, ansatzpunkt_id = 8)
             mein_verf_asche.save()
+            # Probenahmestellen flüssig erstellen und verknüpfen
             for i in [1, 2, 3, 4, 5, 6]:
                 meine_probenahmestelle = db.probe_fluessig.objects.create(klaeranlage = meine_ka, probe_probenahmestelle_id = i)
                 meine_probenahmestelle.save()
+            # Probenahmestellen Schlamm / Asche erstellen und verknüpfen
             for i in [7, 8]:
                 meine_probenahmestelle = db.probe_schlamm_asche.objects.create(klaeranlage = meine_ka, probe_probenahmestelle = i)
                 meine_probenahmestelle.save()
-            self.id = meine_ka.id
+            self.id = meine_id
             return meine_id
         except:
             return False
@@ -312,11 +326,11 @@ class KA_Datensatz():
         try:
             # Passendes Verfahren aus der Datenbank holen
             mein_verf = self.ds.verfahren_schlammwasser.objects.get_or_create(klaeranlage = self.ds)[0]
-            mein_verf.p_prozent_entnahme = self.verf_ablauf["p_prozent_entnahme"].get()
-            mein_verf.investkosten = self.verf_ablauf["investkosten"].get()
-            mein_verf.betriebskosten_pro_p = self.verf_ablauf["betriebskosten_pro_p"].get()
-            mein_verf.verkaufserloes_pro_p = self.verf_ablauf["verkaufserloes_pro_p"].get()
-            mein_verf.zeitspanne_abschreibung = self.verf_ablauf["zeitspanne_abschreibung"].get()
+            mein_verf.p_prozent_entnahme = self.verf_schlammwasser["p_prozent_entnahme"].get()
+            mein_verf.investkosten = self.verf_schlammwasser["investkosten"].get()
+            mein_verf.betriebskosten_pro_p = self.verf_schlammwasser["betriebskosten_pro_p"].get()
+            mein_verf.verkaufserloes_pro_p = self.verf_schlammwasser["verkaufserloes_pro_p"].get()
+            mein_verf.zeitspanne_abschreibung = self.verf_schlammwasser["zeitspanne_abschreibung"].get()
             mein_verf.n_nh4_vorher = self.verf_schlammwasser["n_nh4_vorher"].get()
             mein_verf.n_nh4_prozent_entnahme = self.verf_schlammwasser["n_nh4_prozent_entnahme"].get()
             mein_verf.save()
@@ -330,12 +344,14 @@ class KA_Datensatz():
         try:
             # Passendes Verfahren aus der Datenbank holen
             mein_verf = self.ds.verfahren_faulschlamm.objects.get_or_create(klaeranlage = self.ds)[0]
-            mein_verf.p_prozent_entnahme = self.verf_ablauf["p_prozent_entnahme"].get()
-            mein_verf.investkosten = self.verf_ablauf["investkosten"].get()
-            mein_verf.betriebskosten_pro_p = self.verf_ablauf["betriebskosten_pro_p"].get()
-            mein_verf.verkaufserloes_pro_p = self.verf_ablauf["verkaufserloes_pro_p"].get()
-            mein_verf.zeitspanne_abschreibung = self.verf_ablauf["zeitspanne_abschreibung"].get()
+            mein_verf.p_prozent_entnahme = self.verf_faulschlamm["p_prozent_entnahme"].get()
+            mein_verf.investkosten = self.verf_faulschlamm["investkosten"].get()
+            mein_verf.betriebskosten_pro_p = self.verf_faulschlamm["betriebskosten_pro_p"].get()
+            mein_verf.verkaufserloes_pro_p = self.verf_faulschlamm["verkaufserloes_pro_p"].get()
+            mein_verf.zeitspanne_abschreibung = self.verf_faulschlamm["zeitspanne_abschreibung"].get()
             mein_verf.kosten_schlammentsorgung = self.verf_faulschlamm["kosten_schlammentsorgung"].get()
+            mein_verf.n_nh4_vorher = self.verf_faulschlamm["n_nh4_vorher"].get()
+            mein_verf.n_nh4_prozent_entnahme = self.verf_faulschlamm["n_nh4_prozent_entnahme"].get()
             mein_verf.save()
             return True
         except:
@@ -347,11 +363,11 @@ class KA_Datensatz():
         try:
             # Passendes Verfahren aus der Datenbank holen
             mein_verf = self.ds.verfahren_asche.objects.get_or_create(klaeranlage = self.ds)[0]
-            mein_verf.p_prozent_entnahme = self.verf_ablauf["p_prozent_entnahme"].get()
-            mein_verf.investkosten = self.verf_ablauf["investkosten"].get()
-            mein_verf.betriebskosten_pro_p = self.verf_ablauf["betriebskosten_pro_p"].get()
-            mein_verf.verkaufserloes_pro_p = self.verf_ablauf["verkaufserloes_pro_p"].get()
-            mein_verf.zeitspanne_abschreibung = self.verf_ablauf["zeitspanne_abschreibung"].get()
+            mein_verf.p_prozent_entnahme = self.verf_asche["p_prozent_entnahme"].get()
+            mein_verf.investkosten = self.verf_asche["investkosten"].get()
+            mein_verf.betriebskosten_pro_p = self.verf_asche["betriebskosten_pro_p"].get()
+            mein_verf.verkaufserloes_pro_p = self.verf_asche["verkaufserloes_pro_p"].get()
+            mein_verf.zeitspanne_abschreibung = self.verf_asche["zeitspanne_abschreibung"].get()
             mein_verf.kosten_schlammverbrennung = self.verf_asche["kosten_schlammverbrennung"].get()
             mein_verf.save()
             return True
@@ -478,6 +494,8 @@ class KA_Datensatz():
         self.verf_faulschlamm["verkaufserloes_pro_p"].set(mein_verf.verkaufserloes_pro_p)
         self.verf_faulschlamm["zeitspanne_abschreibung"].set(mein_verf.zeitspanne_abschreibung)
         self.verf_faulschlamm["kosten_schlammentsorgung"].set(mein_verf.kosten_schlammentsorgung)
+        self.verf_faulschlamm["n_nh4_vorher"].set(mein_verf.n_nh4_vorher)
+        self.verf_faulschlamm["n_nh4_prozent_entnahme"].set(mein_verf.n_nh4_prozent_entnahme)
 
     # Fkt lädt Verfahren Asche Verfahren aus der DB
     # in self.ds muss schon der richtige Datensatz geladen sein
