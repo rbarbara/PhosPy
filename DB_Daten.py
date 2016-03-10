@@ -134,13 +134,18 @@ class KA_Datensatz():
         try:
             # Alle Datensätze mit dem aktive-Flag heraus holen
             aktive_ds = db.Klaeranlage.objects.filter(zuletzt_aktiv = True)
+            # Falls es keinen Datensatz mit dem zuletzt_aktiv Flag gibt, den aktuellen als solchen markieren
+            if aktive_ds.count() == 0:
+                self.ds.zuletzt_aktiv = True
+                self.ds.save()
+                return self.lade_datensatz(ka_id = self.ds.id)
             # Falls es mehrere Datensätze mit dem "zuletzt_aktiv" Flag gibt den ersten nehmen und die anderen zurück setzen
             if aktive_ds.count() != 1:
                 aktive_ds.update(zuletzt_aktiv = False)
                 aktive_ds[0].zuletzt_aktiv = True
                 aktive_ds.save()
-            # Datensatz ID an die laden-Fkt übergeben
-            return self.lade_Datensatz(ka_id = aktive_ds[0].id)
+                # Datensatz ID an die laden-Fkt übergeben
+                return self.lade_datensatz(ka_id = aktive_ds[0].id)
         except:
             return False
 
