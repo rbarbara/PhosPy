@@ -5,7 +5,7 @@ import os
 os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
 import django
 django.setup()
-import sys
+#import sys
 
 # Django-Datenbank importieren
 import db.models as db
@@ -19,6 +19,15 @@ import Default_Werte as default
 
 # Damit das tut... ohne gehen die Special-Gui-Vars nicht
 root = tk.Tk()
+
+# Konvertiert von doulbe/float zu String mit Dezimalkomma
+def dez_str(input):
+    return str(input).replace('.', ',')
+
+# Konvertiert von String mit Dezimalkomma auf Gleitkommazahl
+def str_dez(input):
+    return float(input.replace(',','.'))
+
 
 
 class KA_Datensatz():
@@ -45,7 +54,7 @@ class KA_Datensatz():
         self.abwasserabgabe_n = tk.DoubleVar()
         self.abwasserabgabe_n.set(default.ABWASSERABGABE_N)
         self.kosten_schlammentsorgung = tk.DoubleVar()
-        self.kosten_Schlammentsorgung = tk.DoubleVar(default.KOSTEN_SCHLAMMENTSORGUNG)
+        self.kosten_schlammentsorgung = tk.DoubleVar(default.KOSTEN_SCHLAMMENTSORGUNG)
 
         # Dictionary für alle Probenahmestellen bauen pro Wert
         self.pns = {}
@@ -102,6 +111,7 @@ class KA_Datensatz():
         self.verf_asche["kosten_schlammverbrennung"].set(0)
 
         self.statuszeile.set("Initialisieren fertig")
+        print(self.statuszeile.get())
 
 
         # Daten_berechnen
@@ -191,10 +201,8 @@ class KA_Datensatz():
             return False
 
 
-
-
     # Funktion erstellt einen neuen leeren Datensatz und gibt die ID des Kläranlagen-Objekts zurück
-    def __new__():
+    def __new__(self):
         try:
             # Ort Objekt neu erstellen und übergeben
             mein_ort = db.Ort.objects.create(ort = "Default Ort")
@@ -233,22 +241,6 @@ class KA_Datensatz():
     def alles_berechnen(self):
         # Tu Dinge
         pass
-
-    # Aus einer CSV-Datei Datensätze lesen
-    def lese_csv_datei(self, dateiname):
-        # Checken ob es das File überhaupt gibt -> sonst Fehler in Statuszeile und
-        # Erst checken ob das File dem gewünschten Format entspricht!
-        # Wenn nicht wenn möglich sagen in welcher Zeile ein Fehler ist
-        # Tu Dinge
-        pass
-
-    def schreibe_csv_datei(self, dateiname):
-        # Aufhören wenn es die Datei schon gibt oder GUI-Abfrage ob überschrieben werden soll
-
-        # Komplette Datenbank ausser Default-Datensatz in ein CSV mit Titelzeile schreiben
-
-        pass
-
 
     # Funktion schreibt Kläranlagen Datensatz in die DB
     # self.ds muss vorher schon auf den richtigen DS gesetzt sein!
@@ -539,3 +531,117 @@ class KA_Datensatz():
         diese_ka = ka.filter(id = self.id)
         diese_ka.zuletzt_aktiv = True
         diese_ka.save()
+
+    # CSV Zeile aus einem einzelnen KA-Datensatz bauen
+    def csv_zeile_aus_ds(self, klaeranlage):
+        rueckgabe_string = str(klaeranlage.id) +";" +\
+            klaeranlage.ort.ort + ";" +\
+            dez_str(klaeranlage.abwasserabgabe_p) + ";" +\
+            dez_str(klaeranlage.abwasserabgabe_n) + ";" +\
+            dez_str(klaeranlage.kosten_schlammentsorgung) + ";"
+        # Alle Probenahmestellen durch iterieren
+        for i in  [1, 2, 3, 4, 5, 6]:
+            rueckgabe_string += str_dez(klaeranlage.probe_fluessig_set.filter(probe_probenahmestelle_id = i)[0].durchfluss) +\
+                ";" + str_dez(klaeranlage.probe_fluessig_set.filter(probe_probenahmestelle_id = i)[0].p_ges) + ";" +\
+                str_dez(klaeranlage.probe_fluessig_set.filter(probe_probenahmestelle_id = i)[0].po4) + ";"
+        for i in [7, 8]:
+            rueckgabe_string += str_dez(klaeranlage.probe_schlamm_asche_set.filter(probe_probenahmestelle_id = i)[0].menge) +\
+                ";" + str_dez(klaeranlage.probe_schlamm_asche_set.filter(probe_probenahmestelle_id = i)[0].p_ges) + ";"
+
+        # Verfahren Ablauf in CSV-String konvertieren
+        rueckgabe_string += str_dez(klaeranlage.verfahren_ablauf_set.all()[0].p_prozent_entnahme) + ";" +\
+            str_dez(klaeranlage.verfahren_ablauf_set.all()[0].investkosten) + ";" +\
+            str_dez(klaeranlage.verfahren_ablauf_set.all()[0].betriebskosten_pro_p) + ";" +\
+            str_dez(klaeranlage.verfahren_ablauf_set.all()[0].verkaufserloes_pro_p) + ";" +\
+            str_dez(klaeranlage.verfahren_ablauf_set.all()[0].zeitspanne_abschreibung) + ";"
+
+        # Verfahren Schlammwasser in CSV-String konvertieren
+        rueckgabe_string += str_dez(klaeranlage.verfahren_schlammwasser_set.all()[0].p_prozent_entnahme) + ";" +\
+            str_dez(klaeranlage.verfahren_schlammwasser_set.all()[0].investkosten) + ";" +\
+            str_dez(klaeranlage.verfahren_schlammwasser_set.all()[0].betriebskosten_pro_p) + ";" +\
+            str_dez(klaeranlage.verfahren_schlammwasser_set.all()[0].verkaufserloes_pro_p) + ";" +\
+            str_dez(klaeranlage.verfahren_schlammwasser_set.all()[0].zeitspanne_abschreibung) + ";" +\
+            str_dez(klaeranlage.verfahren_schlammwasser_set.all()[0].n_nh4_vorher) + ";" +\
+            str_dez(klaeranlage.verfahren_schlammwasser_set.all()[0].n_nh4_prozent_entnahme) + ";"
+
+        #Verfahren Faulschlamm in CSV-String konvertieren
+        rueckgabe_string += str_dez(klaeranlage.verfahren_faulschlamm_set.all()[0].p_prozent_entnahme) + ";" +\
+            str_dez(klaeranlage.verfahren_faulschlamm_set.all()[0].investkosten) + ";" +\
+            str_dez(klaeranlage.verfahren_faulschlamm_set.all()[0].betriebskosten_pro_p) + ";" +\
+            str_dez(klaeranlage.verfahren_faulschlamm_set.all()[0].verkaufserloes_pro_p) + ";" +\
+            str_dez(klaeranlage.verfahren_faulschlamm_set.all()[0].zeitspanne_abschreibung) + ";" +\
+            str_dez(klaeranlage.verfahren_faulschlamm_set.all()[0].kosten_schlammentsorgung) + ";" +\
+            str_dez(klaeranlage.verfahren_faulschlamm_set.all()[0].n_nh4_vorher) + ";" +\
+            str_dez(klaeranlage.verfahren_faulschlamm_set.all()[0].n_nh4_prozent_entnahme) + ";"
+
+        #Verfahren Asche in CSV-String konvertieren
+        rueckgabe_string += str_dez(klaeranlage.verfahren_asche_set.all()[0].p_prozent_entnahme) + ";" +\
+            str_dez(klaeranlage.verfahren_asche_set.all()[0].investkosten) + ";" +\
+            str_dez(klaeranlage.verfahren_asche_set.all()[0].betriebskosten_pro_p) + ";" +\
+            str_dez(klaeranlage.verfahren_asche_set.all()[0].verkaufserloes_pro_p) + ";" +\
+            str_dez(klaeranlage.verfahren_asche_set.all()[0].zeitspanne_abschreibung) + ";" +\
+            str_dez(klaeranlage.verfahren_asche_set.all()[0].kosten_schlammverbrennung) + ";"
+
+        return rueckgabe_string
+
+    # Aus allen verfügbaren KA-Datensätzen in der DB einen CSV-Block erstellen
+    def csv_inhalt_aus_allen_ds(self):
+        # alle KA ausser der ersten aus der DB holen
+        alle_ka = db.Klaeranlage.objects.all().select_related('ort', 'probe_fluessig', 'probe_schlamm_asche',
+            'probenahmestelle', 'verfahren_ablauf', 'verfahren_asche', 'verfahren_faulschlamm',
+            'verfahren_schlammwasser', 'zeitspanne')#.exclude(id = 1)
+
+        csv_string = []
+        # Aus jeder Kläranlage eine CSV-Zeile erstellen und aneinander hängen
+        for jede_ka in alle_ka:
+            csv_string.append(self.csv_zeile_aus_ds((jede_ka)))
+        return csv_string
+
+    # CSV-File schreiben mit Spaltenüberschriften und kompletter DB als Inhalt
+    def schreibe_csv_datei(self, dateiname):
+        titelzeile = "ID;Name der Kläranlage;Ort;Abwasserabgabe Phosphor [€/kg];Abwasserabgabe N [€/kg];" +\
+            "Kosten Schlammentsorgung [€/t];PNS 1 Durchfluss [m³/a];PNS 1 P_ges [kg/a];PNS 1 P_PO4 [kg/a];" +\
+            "PNS 2 Durchfluss [m³/a];PNS 2 P_ges [kg/a];PNS 2 P_PO4 [kg/a];PNS 3 Durchfluss [m³/a];PNS 3 P_ges [kg/a];"+\
+            "PNS 3 P_PO4 [kg/a];PNS 4 Durchfluss [m³/a];PNS 4 P_ges [kg/a];PNS 4 P_PO4 [kg/a];PNS 5 Durchfluss [m³/a];"+\
+            "PNS 5 P_ges [kg/a];PNS 5 P_PO4 [kg/a];PNS 6 Durchfluss [m³/a];PNS 6 P_ges [kg/a];PNS 6 P_PO4 [kg/a];"+\
+            "PNS 7 Menge [t/a];PNS 7 P_ges Prozent Massengehalt [%];PNS 8 Menge [t/a];"+\
+            "PNS 8 P_ges Prozent Massengehalt[%];Verfahren KA Ablauf Prozent P-Entnahme [%];"+\
+            "Verfahren KA Ablauf Investkosten [€];Verfahren KA Ablauf Betriebskosten pro Jahr pro kg P[€/a/kg P];"+\
+            "Verfahren KA Ablauf Verkaufserlös [€/kg P];Verfahren KA Ablauf Abschreibungszeitspanne [a];"+\
+            "Verfahren Schlammwasser Prozent P-Entnahme [%];Verfahren Schlammwasser Investkosten [€];"+\
+            "Verfahren Schlammwasser Betriebskosten pro Jahr pro kg P[€/a/kg P];"+\
+            "Verfahren Schlammwasser Verkaufserlös [€/kg P];Verfahren Schlammwasser Abschreibungszeitspanne [a];"+\
+            "Verfahren Schlammwasser N_NH4 Vorher [kg/a];Verfahren Schlammwasser Prozent N_NH4 Entnahme [%];"+\
+            "Verfahren Faulschlamm Prozent P-Entnahme [%];Verfahren Faulschlamm Investkosten [€];"+\
+            "Verfahren Faulschlamm Betriebskosten pro Jahr pro kg P[€/a/kg P];"+\
+            "Verfahren Faulschlamm Verkaufserlös [€/kg P];Verfahren Faulschlamm Abschreibungszeitspanne [a];"+\
+            "Verfahren Faulschlamm Kosten Schlammentsorgung [€/t];Verfahren Faulschlamm N_NH4 Vorher [kg/a];"+\
+            "Verfahren Faulschlamm Prozent N_NH4 Entnahme [%];Verfahren Asche Prozent P-Entnahme [%];"+\
+            "Verfahren Asche Investkosten [€];Verfahren Asche Betriebskosten pro Jahr pro kg P[€/a/kg P];"+\
+            "Verfahren Asche Verkaufserlös [€/kg P];Verfahren Asche Abschreibungszeitspanne [a];"+\
+            "Verfahren Asche Kosten Schlammverbrennung [€/t]\r\n"
+        # Aufhören wenn es die Datei schon gibt oder GUI-Abfrage ob überschrieben werden soll
+        # Falls es das File schon gibt aufhören
+        if os.path.isfile(dateiname):
+            self.statuszeile.set("Datei "+dateiname+" existiert schon, wird nicht überschrieben")
+            return False
+        # Falls es das File noch nicht gibt weiter machen
+
+        # CSV-Inhalt aus allen Datensätzen holen
+        inhalt_csv = self.csv_inhalt_aus_allen_ds()
+
+        # Komplette Datenbank ausser Default-Datensatz in ein CSV mit Titelzeile schreiben
+        offene_datei = open(dateiname, "rw")
+        offene_datei.writelines(titelzeile)
+        offene_datei.writelines(inhalt_csv)
+        offene_datei.close()
+
+
+    # Aus einer CSV-Datei Datensätze lesen
+    def lese_csv_datei(self, dateiname):
+        # Checken ob es das File überhaupt gibt -> sonst Fehler in Statuszeile und
+        # Erst checken ob das File dem gewünschten Format entspricht!
+        # Wenn nicht wenn möglich sagen in welcher Zeile ein Fehler ist
+
+        # Tu Dinge
+        pass

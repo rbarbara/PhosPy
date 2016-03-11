@@ -86,13 +86,15 @@ class Verfahren_Ablauf(Verfahren):
 
 # Verfahren welches beim Schlammwasser was zurück in die Biologie geht ansetzt
 class Verfahren_Schlammwasser(Verfahren):
-    n_nh4_vorher = models.DecimalField(max_digits = 13, decimal_places = 3)
-    n_nh4_nachher = models.DecimalField(max_digits = 13, decimal_places = 3)
+    n_nh4_vorher = models.DecimalField(max_digits = 13, decimal_places = 3, default = 0.0)
+    n_nh4_prozent_entnahme = models.DecimalField(max_digits = 13, decimal_places = 3, default = 0.0)
 
 
 # Verfahren welches beim Faulschlamm ansetzt
 class Verfahren_Faulschlamm(Verfahren):
     kosten_schlammentsorgung = models.DecimalField(max_digits = 13, decimal_places = 3)
+    n_nh4_vorher = models.DecimalField(max_digits = 13, decimal_places = 3, default = 0.0)
+    n_nh4_prozent_entnahme = models.DecimalField(max_digits = 13, decimal_places = 3, default = 0.0)
 
 
 # Verfahren welches bei der Asche ansetzt
